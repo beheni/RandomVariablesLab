@@ -6,6 +6,12 @@ output:
     df_print: paged
 ---
 
+### Task Distribution
+
+Task 1 - Anastasiia Beheni\
+Task 2 - Victoriia Kocherkevych\
+Task 3 - Markiian-Mykolai Kruhlii
+
 ### Task 1 (Anastasiia Beheni)
 
 #### In this task, we discuss the $[7,4]$ Hamming code and investigate its reliability. That coding system can correct single errors in the transmission of $4$-bit messages and proceeds as follows:
@@ -59,11 +65,11 @@ G <- matrix(c(1, 1, 1, 0, 0, 0, 0,
 H <- t(matrix(c(1, 0, 1, 0, 1, 0, 1,
 		0, 1, 1, 0, 0, 1, 1,
 		0, 0, 0, 1, 1, 1, 1), nrow = 3, byrow = TRUE))
-print("The matrix G is: \n")
+print("The matrix G is:")
 G  
-print("The matrix H is: \n")
+print("The matrix H is:")
 H
-print("The product GH must be zero: \n")
+print("The product GH must be zero:")
 (G%*%H) %%2
 ```
 
@@ -146,7 +152,7 @@ p_hat <- sum(
   decoded[,3]==messages[,3]&
   decoded[,4]==messages[,4]
   ) / nrow(decoded)
-print("p hat")
+print("p hat =")
 p_hat
 ```
 
@@ -173,7 +179,7 @@ $$=P(\hat p -\epsilon <p^*<\hat p + \epsilon)= P(-\epsilon<p^*-\hat{p}<\epsilon)
 To satisfy the condition that $\epsilon \le 0,03$\
 $$N\ge (\frac{0.958}{0.03})^2\ge 1020$$\
 
-### Historgam of Errors Amount
+### Historgam of Errors Amount.
 
 ```{r}
 #calculating the number of mistakes in each message
@@ -197,7 +203,7 @@ The random variable that counts the number of wrong bits in a decoded message se
 
 **In conclusion**, we have the probability of corrupting one bit while transmitting. But we *can't predict the probability of corrupting one bit while decoding*, because with more than two mistakes we are reversing an undetermined bit.
 
-### Task 2.
+### Task 2. (Viktoria Kocherkevych)
 
 #### In this task, we discuss a real-life process that is well modelled by a Poisson distribution. As you remember, a Poisson random variable describes occurrences of rare events, i.e., counts the number of successes in a large number of independent random experiments. One of the typical examples is the **radioactive decay** process.
 
@@ -219,40 +225,89 @@ The random variable that counts the number of wrong bits in a decoded message se
     -   calculate the number of elements of the sample which are less than critical value ($8 \times 10^8$) and calculate the empirical probability; comment whether it is close to the desired level $0.95$
 
 ```{r}
-lambda <- 1  # change this!
-N <- 100     # change this!
-mu <- N * lambda
+m <- id * (10^(-6))  #grams
+Na <- 6 * (10^23)
+M <- 139
+T_y <- 30.1 #years
+T_s <- T_y * 365 * 24 * 3600
+lambda <- log(2) / T_s  
+N <- m*Na/M
+puasson <- N * lambda
+puasson
 K <- 1e3
 n <- 5
-sample_means <- colMeans(matrix(rpois(n*K, lambda = mu), nrow=n))
+sample_means <- colMeans(matrix(rpois(n*K, lambda = puasson), nrow=n))
+s_mean <- mean(sample_means)
+means <- replicate(K, mean(colMeans(matrix(rpois(n*K, lambda = puasson), nrow=n))))
 ```
 
 #### Next, calculate the parameters of the standard normal approximation
 
 ```{r}
-mu <- 0       # change this!
-sigma <- 1    # change this!
+mu <- mean(means)
+sigma <- sd(means)
+mu
+sigma
 ```
 
 #### We can now plot ecdf and cdf
 
 ```{r}
 xlims <- c(mu-3*sigma,mu+3*sigma)
-Fs <- ecdf(sample_means)
-plot(Fs, 
-     xlim = xlims, 
-     ylim = c(0,1),
-     col = "blue",
-     lwd = 2,
-     main = "Comparison of ecdf and cdf")
-curve(pnorm(x, mean = mu, sd = sigma), col = "red", lwd = 2, add = TRUE)
+Fs <- ecdf(means)
+plot(Fs,
+  ylim = c(0,1),
+  col = "blue",
+  lwd = 2,
+  main = "Comparison of ecdf and cdf")
+curve(pnorm(x, mean = mu, sd = sigma), col="red", lwd=2, add=TRUE)
+x <- seq(min(means), max(means), by=0.01)
+diff <- max(abs(Fs(x) - pnorm(x, mean = mu, sd= sigma)))
+diff
 ```
 
-**Next, proceed with all the remaining steps**
+##### Theoretical bound on n:
 
-**Do not forget to include several sentences summarizing your work and the conclusions you have made!**
+###### **Markov inequality**:
 
-### Task 3.
+Let S be the sum of $x_1,x_2,\dots,x_n$. Then $P(S\le8*10^8)=1-P(S\ge8*10^8)\le\frac{1}{8*10^8}E(S)\ge0.95$
+
+$\frac{1}{8*10^8} E(S) \le 0.05$
+
+$E(S) = \mu*n$
+
+$n \le \frac{4*10^7}{\mu}$
+
+$n \le \frac{4*10^7}{59888359}$
+
+$n \le 0.667$
+
+$n = 0$
+
+###### **Central Limit Theorem**:
+
+$P(\frac{S_{n}-n\mu}{\sigma\sqrt{n}} \le \frac{8*10^8-n\mu}{\sigma\sqrt{n}}) \rightarrow \Phi(t)$
+
+$\Phi(t) = \Phi(\frac{8*10^8-n\mu}{\sigma\sqrt{n}})\ge 0.95$
+
+$\Phi(t)$ has to be equal to $1.65$ (due to the Standart normal table)
+
+(<https://www.sjsu.edu/faculty/gerstman/EpiInfo/z-table.htm>)
+
+After all the calculations we have:
+
+$n \approx 13.157$
+
+$n = 13$ Summary: Markov inequality is the most unreliable of all the theorems.
+
+```{r}
+n<-13
+sample_sums <- colSums(matrix(rpois(13*K, lambda = puasson), nrow=n))
+good_sums <- length(which(sample_sums>=8*(10^8)))
+good_sums
+```
+
+### Task 3 (Markiian-Mykolai Kruhlii)
 
 #### In this task, we use the Central Limit Theorem approximation for continuous random variables.
 
@@ -271,39 +326,125 @@ curve(pnorm(x, mean = mu, sd = sigma), col = "red", lwd = 2, add = TRUE)
     -   repeat this $K$ times to get the sample $\mathbf{s}=(s_1,\dots,s_K)$ of total times until the $100^{\mathrm{th}}$ click;\
     -   estimate the probability that the location is identified as safe and compare to the desired level $0.95$
 
+## Part 1
+
 #### First, generate samples an sample means:
 
 ```{r}
-nu1 <- 1  # change this!
+nu1 <- id + 10
 K <- 1e3
-n <- 5
-sample_means <- colMeans(matrix(rexp(n*K, rate = nu1), nrow=n))
+ns <- c(5, 10, 50)
+sample_means <- colMeans(matrix(rexp(5*K, rate = nu1), nrow=5))
 ```
 
 #### Next, calculate the parameters of the standard normal approximation
 
 ```{r}
-mu <- 0       # change this!
-sigma <- 1    # change this!
+#mu <- 1 / nu1
+#sigma <- mu / sqrt(n)
 ```
 
 #### We can now plot ecdf and cdf
 
 ```{r}
-xlims <- c(mu-3*sigma,mu+3*sigma)
-Fs <- ecdf(sample_means)
-plot(Fs, 
-     xlim = xlims, 
-     col = "blue",
-     lwd = 2,
-     main = "Comparison of ecdf and cdf")
-curve(pnorm(x, mean = mu, sd = sigma), col = "red", lwd = 2, add = TRUE)
+x <- seq(0,0.200,by=0.001)
+for (n in ns) {
+  sample_means <- colMeans(matrix(rexp(n*K, rate = nu1), nrow=n))
+  
+  mu <- 1 / nu1
+  sigma <- mu / sqrt(n)
+  
+  xlims <- c(mu-3*sigma,mu+3*sigma)
+  Fs <- ecdf(sample_means)
+  
+  title <- paste("ecdf and cdf for n = ", toString(n))
+  
+  plot(Fs, 
+       xlim = xlims, 
+       col = "blue",
+       lwd = 2,
+       main = title)
+  
+  curve(pnorm(x, mean = mu, sd = sigma), col = "red", lwd = 2, add = TRUE)
+  
+  print(max(abs(ecdf(sample_means)(x)-pnorm(x,mean = mu, sd = sigma))))
+}
 ```
 
-**Next, proceed with all the remaining steps**
+## Part 2
 
-**Do not forget to include several sentences summarizing your work and the conclusions you have made!**
+$S = X_1 + ... + X_{100}$
+
+$P(S>=60)$
+
+**Markov** $$
+P(S \ge 1) \le \frac {\mu_S}{1} = \frac {100} {29*N}
+$$ $$
+0.95 \le \frac {100} {29*N}
+$$ $$N=3$$
+
+**Chebyshev**
+
+$$
+P(|X - \mu| \ge c) \le \frac {\sigma^2}{c^2} \Rightarrow P(S - \frac {100} {29*N} \ge 1-  \frac {100} {29*N})
+$$
+
+$$
+P(|S - \frac {100} {29*N}| \ge \frac {29*N -100} {29*N}) \le \frac {100*N^2} {(29 * N - 100) ^ 2}
+$$
+
+$$
+0.95 \le \frac {100*N^2} {(24 * N - 100) ^ 2}
+$$
+
+$$
+N = 3
+$$
+
+**Central Limit theorem:**
+
+$$
+P(\frac {S - 100 * \mu} {\sigma * \sqrt n} \le t) \rightarrow Ф(t)
+$$
+
+$$
+\mu_S = \frac {100} {29*N} = \sigma_S
+$$ $$
+P(S\ge1) = P(\frac {S - 100 * \frac 1 {29 * N}}{10 * \frac 1 {29 * N}} \le \frac {1 - 100 * \frac 1 {29 * N}}{10 * \frac 1 {29 * N}}) = Ф(\frac {29 * N- 100} {10})
+$$ $$
+Ф(\frac {24 * N- 100} {10}) \ge 0.95
+$$ Lets estimate $N$ using R inbuild tools
+
+```{r}
+x <- 1:5
+results <- c()
+for (N in seq(min(x), max(x), len=1000)) {
+  res = pnorm((nu1 * N - 100) / 10)
+  
+  if (res >= 0.95 && res <= 1) {
+    results <- append(results, c(res, N))
+  }
+}
+max(results)
+```
+
+$N=5$
+
+```{r}
+N <- 3
+nu2 = nu1 * N
+sample = replicate(1000, sum(rexp(100, rate = nu2)))
+probability = sum(sample > 1) / 1000
+print("Probability that the location is identified as safe")
+probability
+```
 
 ### General summary and conclusions
 
-SUmmarize here what you've done, whether you solved the tasks, what difficulties you had etc
+In this laboratory work we learned how to use our knowledge of distributions and theorems on practice. We deepened our understanding of them and learned how to simulate them.
+
+In the **first task** we recalled how to use Hamming [7, 4] code, and found the empirical probability of the correctly decoding the message. We compared it to the theoretical calculations. Using the LLN we justified why $\hat p$ (empirical probability) converges to $p^*$ (theoretical probability) with a big amount of repetitions. Also using the CLT we found the accurate values of steps which we need to satisfy the condition that $\epsilon \le 0.03$. We got $N\approx1020$.
+
+In **second task** we simulated the radioactive decay using the Poisson distribution. If we were to compare results of theoretical calculations (with Markov theorem, CLT etc) with real results, they happened to be quite different. We found it difficult to understand why and what went wrong. We assume that a big impact on our results has our id number, which is quite big and therefore is not that good for some of the calculations.
+
+In **third task** we used convergence in probability and learned how to approximate distribution using emperical observations, we used different inequalities for getting cdf bounds and simulated experiment many times in order to obtain the desired probability
