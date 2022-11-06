@@ -268,35 +268,36 @@ curve(pnorm(x, mean = mu, sd = sigma), col = "red", lwd = 2, add = TRUE)
 #### First, generate samples an sample means:
 
 ```{r}
-nu1 <- 1  # change this!
+nu1 <- id + 10
 K <- 1e3
-n <- 5
-sample_means <- colMeans(matrix(rexp(n*K, rate = nu1), nrow=n))
+n <- 50    # 10, 50
+sample_means <- colSums(matrix(rexp(n*K, rate = 1/nu1), nrow=n))
 ```
 
 #### Next, calculate the parameters of the standard normal approximation
 
 ```{r}
-mu <- 0       # change this!
-sigma <- 1    # change this!
+mu <- n*nu1
+sigma <- sqrt(n) * nu1
 ```
 
 #### We can now plot ecdf and cdf
 
 ```{r}
+x <- seq(0,0.200,by=0.001)
+
 xlims <- c(mu-3*sigma,mu+3*sigma)
 Fs <- ecdf(sample_means)
 plot(Fs, 
      xlim = xlims, 
      col = "blue",
      lwd = 2,
-     main = "Comparison of ecdf and cdf")
+     main = "ecdf and cdf")
 curve(pnorm(x, mean = mu, sd = sigma), col = "red", lwd = 2, add = TRUE)
+
+max(abs(ecdf(sample_means)(x)-pnorm(x,mean = mu, sd = sigma)))
 ```
 
-**Next, proceed with all the remaining steps**
-
-**Do not forget to include several sentences summarizing your work and the conclusions you have made!**
 
 ### General summary and conclusions
 
