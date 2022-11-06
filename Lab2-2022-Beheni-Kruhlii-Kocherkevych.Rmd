@@ -162,7 +162,11 @@ $$I = \begin{cases}
 0 & 1-p^*
 \end{cases}$$ $$E(I) = 1*p^*+0*(1-p^*) = p^*$$ $E(I^2) = 1^2*p^*+0^2*(1-p^*) = p^*$ $$Var(I) = E(I^2)-E(I)^2 =  p^*- (p^*)^2$$
 
-Because of the **Weak Law of Large Numbers**, we can determine that $P(|\hat p - p^* \ge \epsilon|) \to 0$ \### Confidence interval The standart deviation of our indicator r. v. $$\sigma = \sqrt{Var(I)} = \sqrt{p^*- (p^*)^2} \approx \sqrt{0.604-0.604^2} = 0.489$$
+Because of the **Weak Law of Large Numbers**, we can determine that $P(|\hat p - p^* \ge \epsilon|) \to 0$\
+
+### Confidence interval
+
+The standard deviation of our indicator r. v. $$\sigma = \sqrt{Var(I)} = \sqrt{p^*- (p^*)^2} \approx \sqrt{0.604-0.604^2} = 0.489$$
 
 Using the **Central Limit Theorem** we know that $Z=\frac{\sqrt{N}}{\sigma}(\hat{p}-p^*)=\frac{\sqrt{N}}{0.489}(\hat{p}-0.604)$ is a standard normal r. v. Therefore\
 $$P(\hat p -\epsilon <p^*<\hat p + \epsilon)= P(-\epsilon<p^*-\hat{p}<\epsilon)=P(-\epsilon<-(\hat{p}-p^*)<\epsilon)=\\P(\frac{-\epsilon\sqrt{N}}{\sigma}<\frac{-\epsilon\sqrt{N}}{\sigma}(\hat{p}-p^*)<\frac{\epsilon\sqrt{N}}{\sigma})= P(\frac{-\epsilon\sqrt{N}}{0.489}<\frac{-\epsilon\sqrt{N}}{0.489}(\hat{p}-p^*)<\frac{\epsilon\sqrt{N}}{0.489})=\\=\Phi(\frac{\epsilon\sqrt{N}}{0.489})-\Phi(\frac{-\epsilon\sqrt{N}}{0.489})=2\Phi(\frac{\epsilon\sqrt{N}}{0.489})-1=0.95$$ $\Phi(\frac{\epsilon\sqrt{N}}{0.489}) = \frac{0.95+1}{2} = 0.975$ Using the Standard normal table we got that $\frac{\epsilon\sqrt{N}}{0.489} = 1.96$ Thus $$\epsilon = \frac{1.96*0.489}{\sqrt{N}} = \frac{0.958}{\sqrt{N}}$$ This is equal to $\approx 0,09$ when $N=100$\
